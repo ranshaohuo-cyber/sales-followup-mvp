@@ -522,7 +522,6 @@ export default function RealtimeCopilot() {
     }
 
     if (event.type === 'response.created') {
-      realtimeSessionRef.current?.cancelResponse?.()
       stream.append({
         speaker: 'ai_coach',
         type: 'state_change',

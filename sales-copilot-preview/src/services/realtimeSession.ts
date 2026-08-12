@@ -52,12 +52,6 @@ export class RealtimeAsrSession {
     return { ok: true }
   }
 
-  cancelResponse() {
-    if (this.websocket?.readyState === WebSocket.OPEN) {
-      this.websocket.send(qwenEvent({ type: 'response.cancel' }))
-    }
-  }
-
   close() {
     this.websocket?.close()
     this.websocket = undefined

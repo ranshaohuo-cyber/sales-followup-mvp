@@ -30,7 +30,7 @@ class QwenRealtimeProxyService:
             outputAudio=AudioFormat(format="pcm16", sampleRate=24000, channels=1),
             note=(
                 "Phase 2 ASR-only: the frontend streams microphone PCM to websocketUrl; "
-                "the backend forwards transcription events and suppresses model responses."
+                "the backend forwards transcription events and ignores model response events."
             ),
         )
 
@@ -112,30 +112,18 @@ class QwenRealtimeProxyService:
 
     async def _forward_qwen_to_client(self, qwen_ws, client_ws: WebSocket) -> None:
         async for message in qwen_ws:
-            if await self._suppress_generation_if_needed(message, qwen_ws):
+            if self._suppress_generation_if_needed(message):
                 continue
             await client_ws.send_text(message)
 
-    async def _suppress_generation_if_needed(self, message: str, qwen_ws) -> bool:
+    def _suppress_generation_if_needed(self, message: str) -> bool:
         try:
             event = json.loads(message)
         except json.JSONDecodeError:
             return False
 
         event_type = event.get("type", "")
-        if not isinstance(event_type, str) or not event_type.startswith("response."):
-            return False
-
-        if event_type == "response.created":
-            await qwen_ws.send(
-                json.dumps(
-                    {
-                        "type": "response.cancel",
-                    },
-                    ensure_ascii=False,
-                )
-            )
-        return True
+        return isinstance(event_type, str) and event_type.startswith("response.")
 
     def _build_qwen_url(self) -> str:
         return f"{self.settings.qwen_realtime_ws_url}?{urlencode({'model': self.settings.qwen_realtime_model})}"

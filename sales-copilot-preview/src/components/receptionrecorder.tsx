@@ -159,10 +159,7 @@ export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props)
       lastUtteranceSnapshotRef.current = utteranceAudioRef.current.stop()
     }
 
-    if (event.type === 'response.created') {
-      realtimeSessionRef.current?.cancelResponse()
-      return
-    }
+    if (event.type.startsWith('response.')) return
 
     if (event.type === 'conversation.item.input_audio_transcription.delta' || event.type === 'response.audio_transcript.delta') {
       const delta = event.delta || event.text || ''
