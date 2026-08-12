@@ -44,7 +44,6 @@ export default function FollowupCard() {
   const [customerStatus, setCustomerStatus] = useState<FollowupCustomerStatus>('new_inquiry')
   const [transcript, setTranscript] = useState('')
   const [messages, setMessages] = useState<DialogueMessage[]>([])
-  const [draftSpeaker, setDraftSpeaker] = useState<Exclude<DialogueSpeaker, 'noise' | 'unknown'>>('customer')
   const [draftText, setDraftText] = useState('')
   const [bulkText, setBulkText] = useState('')
   const [result, setResult] = useState<FollowupResult | null>(null)
@@ -107,7 +106,7 @@ export default function FollowupCard() {
       ...messages,
       {
         id: `manual_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-        speaker: draftSpeaker,
+        speaker: 'unknown' as const,
         text,
         timestamp: new Date().toISOString(),
         source: 'manual' as const,
@@ -153,7 +152,7 @@ export default function FollowupCard() {
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <h1 className="text-lg font-bold text-gray-900">客户离店跟进卡</h1>
-            <p className="mt-1 text-xs leading-relaxed text-gray-500">把刚才客户说的话放进来，马上整理下一步怎么追。</p>
+            <p className="mt-1 text-xs leading-relaxed text-gray-500">把接待录音转成原始文字，马上整理客户需求、顾虑和下一步跟进。</p>
           </div>
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
             <Wand2 size={20} />
@@ -227,14 +226,14 @@ export default function FollowupCard() {
             onFinish={handleRecorderFinish}
           />
 
-          <ControlBlock label="接待记录">
+          <ControlBlock label="接待原始文稿">
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
               <div className="mb-3 max-h-72 space-y-3 overflow-y-auto">
                 {messages.length === 0 ? (
                   <div className="py-6 text-center">
                     <MessageSquareText size={26} className="mx-auto mb-2 text-gray-300" />
-                    <p className="text-sm font-semibold text-gray-500">还没有接待消息</p>
-                    <p className="mt-1 text-xs text-gray-400">左边客户，右边销售，像微信一样看。</p>
+                    <p className="text-sm font-semibold text-gray-500">还没有原始文稿</p>
+                    <p className="mt-1 text-xs text-gray-400">可以录音转写，也可以直接粘贴一段乱序接待文字。</p>
                   </div>
                 ) : null}
                 {messages.map((message) => (
@@ -243,26 +242,11 @@ export default function FollowupCard() {
               </div>
 
               <div className="rounded-lg bg-white p-2">
-                <div className="mb-2 grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setDraftSpeaker('customer')}
-                    className={`min-h-8 rounded-lg text-xs font-bold ${draftSpeaker === 'customer' ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-500'}`}
-                  >
-                    客户说
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDraftSpeaker('sales')}
-                    className={`min-h-8 rounded-lg text-xs font-bold ${draftSpeaker === 'sales' ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500'}`}
-                  >
-                    销售说
-                  </button>
-                </div>
+                <p className="mb-2 rounded-lg bg-amber-50 px-2 py-1.5 text-[11px] leading-relaxed text-amber-700">不再强行区分销售/客户。原文越完整，AI 越容易提取客户需求、顾虑和跟进动作。</p>
                 <textarea
                   value={draftText}
                   onChange={(event) => setDraftText(event.target.value)}
-                  placeholder="输入一句话，点添加..."
+                  placeholder="手动补充一段原始文字..."
                   className="min-h-[62px] w-full resize-none rounded-lg bg-gray-50 px-3 py-2 text-sm leading-relaxed text-gray-800 outline-none placeholder:text-gray-300"
                 />
                 <button
@@ -270,7 +254,7 @@ export default function FollowupCard() {
                   onClick={addDraftMessage}
                   className="mt-2 min-h-9 w-full rounded-lg bg-gray-900 text-xs font-bold text-white"
                 >
-                  添加到聊天
+                  添加到原始文稿
                 </button>
               </div>
             </div>
@@ -279,7 +263,7 @@ export default function FollowupCard() {
               <textarea
                 value={bulkText}
                 onChange={(event) => setBulkText(event.target.value)}
-                placeholder="也可以一次粘贴整段微信聊天，支持“客户：...” “销售：...”"
+                placeholder="也可以一次粘贴整段录音转写或微信聊天；不确定谁说的也没关系。"
                 className="min-h-[72px] w-full resize-none bg-transparent text-xs leading-relaxed text-gray-700 outline-none placeholder:text-gray-300"
               />
               <button
@@ -287,7 +271,7 @@ export default function FollowupCard() {
                 onClick={importBulkText}
                 className="mt-2 min-h-8 w-full rounded-lg bg-blue-50 text-xs font-bold text-primary-600"
               >
-                导入粘贴内容
+                导入原始文稿
               </button>
             </div>
 
@@ -383,7 +367,7 @@ export default function FollowupCard() {
         <section className="rounded-lg border border-dashed border-gray-200 bg-white px-4 py-8 text-center">
           <MessageSquareText size={28} className="mx-auto mb-2 text-gray-300" />
           <p className="text-sm font-semibold text-gray-500">还没有生成跟进卡</p>
-          <p className="mt-1 text-xs text-gray-400">先粘贴一段客户聊天或接待记录。</p>
+          <p className="mt-1 text-xs text-gray-400">先录音转写，或粘贴一段原始接待文字。</p>
         </section>
       )}
     </div>
@@ -391,20 +375,13 @@ export default function FollowupCard() {
 }
 
 function ChatBubble({ message, onRemove }: { message: DialogueMessage; onRemove: (id: string) => void }) {
-  const isSales = message.speaker === 'sales'
   return (
-    <div className={`flex ${isSales ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[82%] ${isSales ? 'text-right' : 'text-left'}`}>
-        <div className="mb-1 text-[10px] font-semibold text-gray-400">{dialogueSpeakerLabel(message.speaker)}</div>
-        <button
-          type="button"
-          onDoubleClick={() => onRemove(message.id)}
-          title="双击删除"
-          className={`rounded-lg px-3 py-2 text-left text-sm leading-relaxed shadow-sm ${chatBubbleClass(message.speaker)}`}
-        >
-          {message.text}
-        </button>
+    <div className="rounded-lg bg-white px-3 py-2 text-sm leading-relaxed text-gray-800 shadow-sm">
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <span className="text-[10px] font-semibold text-gray-400">原始片段</span>
+        <button type="button" onClick={() => onRemove(message.id)} className="text-[10px] font-semibold text-gray-300">删除</button>
       </div>
+      <p>{message.text}</p>
     </div>
   )
 }
@@ -456,7 +433,7 @@ function intentTone(intentLevel: string) {
 function messagesToTranscript(items: DialogueMessage[]) {
   return items
     .filter((item) => item.speaker !== 'noise' && item.text.trim())
-    .map((item) => `${dialogueSpeakerLabel(item.speaker)}：${item.text.trim()}`)
+    .map((item) => item.text.trim())
     .join('\n')
 }
 
