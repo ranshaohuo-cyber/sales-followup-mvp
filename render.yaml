@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: sales-followup-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DASHSCOPE_API_KEY
+        sync: false
+      - key: PUBLIC_ACCESS_CODE
+        sync: false
+      - key: QWEN_REALTIME_MODEL
+        value: qwen-audio-3.0-realtime-plus
+      - key: QWEN_REALTIME_WS_URL
+        value: wss://dashscope.aliyuncs.com/api-ws/v1/realtime
+      - key: QWEN_FOLLOWUP_MODEL
+        value: qwen-plus
+      - key: QWEN_PREMIUM_FOLLOWUP_MODEL
+        value: qwen-max
+      - key: CORS_ORIGINS
+        sync: false
