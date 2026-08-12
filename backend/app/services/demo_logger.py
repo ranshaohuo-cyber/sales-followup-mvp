@@ -1,5 +1,5 @@
 import json
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -15,7 +15,7 @@ class DemoLogger:
         log_id = f"log_{uuid4().hex[:12]}"
         record = {
             "id": log_id,
-            "createdAt": datetime.now(UTC).isoformat(),
+            "createdAt": datetime.now(timezone.utc).isoformat(),
             **body.model_dump(by_alias=True),
         }
 
