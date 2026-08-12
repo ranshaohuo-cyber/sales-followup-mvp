@@ -186,7 +186,7 @@ export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props)
       timestamp: new Date().toISOString(),
       metadata: { source: 'realtime_asr' },
     })
-    const speaker = normalizeSpeaker(text, speakerResult.speaker, speakerResult.confidence, snapshot?.byteLength || 0)
+    const speaker = normalizeSpeaker(text, speakerResult.speaker, speakerResult.confidence, snapshot?.byteLength || 0, messagesRef.current[messagesRef.current.length - 1]?.speaker)
     const nextMessages = [
       ...messagesRef.current,
       {
@@ -324,13 +324,23 @@ function voiceprintButtonText(status: VoiceprintStatus) {
   return map[status]
 }
 
-function normalizeSpeaker(text: string, speaker: 'sales' | 'customer' | 'unknown', confidence: number, byteLength: number): DialogueSpeaker {
+function normalizeSpeaker(
+  text: string,
+  speaker: 'sales' | 'customer' | 'unknown',
+  confidence: number,
+  byteLength: number,
+  previousSpeaker?: DialogueSpeaker,
+): DialogueSpeaker {
   const cleanText = text.trim()
   if (cleanText.length <= 1 || byteLength < 800) return 'noise'
-  if (containsAny(cleanText, ['你们', '别人家', '多少钱', '太贵', '再看看', '考虑一下', '回家商量', '老公', '老婆'])) return 'customer'
-  if (containsAny(cleanText, ['我帮您', '我们可以', '给您', '咱们', '建议您', '先给您'])) return 'sales'
-  if (speaker === 'sales' && confidence >= 0.7) return 'sales'
-  if (speaker === 'customer' && confidence >= 0.58) return 'customer'
+
+  const salesLike = containsAny(cleanText, ['我帮您', '我们可以', '给您', '咱们', '建议您', '先给您', '您这边', '咱家', '我给您'])
+  const customerLike = containsAny(cleanText, ['你们', '别人家', '多少钱', '太贵', '再看看', '考虑一下', '回家商量', '老公', '老婆'])
+
+  if (salesLike && !customerLike) return 'sales'
+  if (customerLike && !salesLike && speaker !== 'sales') return 'customer'
+  if (speaker === 'sales' && confidence >= 0.66) return 'sales'
+  if (previousSpeaker === 'sales' && confidence >= 0.58 && !customerLike) return 'sales'
   return 'unknown'
 }
 
@@ -352,6 +362,7 @@ function speakerLabel(speaker: DialogueSpeaker) {
 }
 
 function formatSpeakerNote(speaker: DialogueSpeaker, confidence: number) {
+  if (speaker === 'unknown') return `未确定 · 声纹相似度 ${Math.round(confidence * 100)}%`
   return `${speakerLabel(speaker)} · 置信度 ${Math.round(confidence * 100)}%`
 }
 

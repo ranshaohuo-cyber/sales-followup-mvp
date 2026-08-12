@@ -52,7 +52,7 @@ export class SalesVoiceprintSpeakerIdentificationProvider implements SpeakerIden
   private readonly threshold: number
 
   constructor(options: { threshold?: number } = {}) {
-    this.threshold = options.threshold ?? 0.74
+    this.threshold = options.threshold ?? 0.66
   }
 
   registerSalesVoiceprint(audioChunks: string[], sampleRate: number) {
@@ -106,18 +106,17 @@ export class SalesVoiceprintSpeakerIdentificationProvider implements SpeakerIden
 
     const comparison = compareFeatures(this.voiceprint.features, features)
     const matchedSalesVoiceprint = comparison.score >= this.threshold
-    const customerConfidence = clamp01(0.55 + Math.max(0, this.threshold - comparison.score) * 1.2)
 
     return {
-      speaker: matchedSalesVoiceprint ? 'sales' : 'customer',
-      confidence: matchedSalesVoiceprint ? comparison.score : customerConfidence,
+      speaker: matchedSalesVoiceprint ? 'sales' : 'unknown',
+      confidence: comparison.score,
       metadata: {
         provider: 'sales_voiceprint',
         matchedSalesVoiceprint,
         score: comparison.score,
         threshold: this.threshold,
         sampleRate,
-        reason: matchedSalesVoiceprint ? 'matched_sales_voiceprint' : 'not_sales_voiceprint',
+        reason: matchedSalesVoiceprint ? 'matched_sales_voiceprint' : 'voiceprint_inconclusive',
         pitchMeanHz: Math.round(features.pitchMeanHz),
         registeredPitchMeanHz: Math.round(this.voiceprint.features.pitchMeanHz),
         pitchDiffHz: Math.round(comparison.pitchDiffHz),
