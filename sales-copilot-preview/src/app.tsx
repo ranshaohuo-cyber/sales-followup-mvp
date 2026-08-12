@@ -13,15 +13,6 @@ export default function App() {
   const [unlocked, setUnlocked] = useState(() => Boolean(getAccessCode()))
   const [activeTab, setActiveTab] = useState<TabId>('followup')
 
-  const renderPage = () => {
-    switch (activeTab) {
-      case 'followup': return <FollowupCard />
-      case 'review': return <Review />
-      case 'experience': return <ExperienceLibrary />
-      case 'settings': return <Settings />
-      default: return <FollowupCard />
-    }
-  }
 
   if (!unlocked) {
     return <AccessGate onUnlock={() => setUnlocked(true)} />
@@ -34,7 +25,10 @@ export default function App() {
       </div>
 
       <main className="hide-scrollbar flex-1 overflow-y-auto pb-20">
-        {renderPage()}
+        <div className={activeTab === 'followup' ? 'block' : 'hidden'}><FollowupCard /></div>
+        <div className={activeTab === 'review' ? 'block' : 'hidden'}><Review /></div>
+        <div className={activeTab === 'experience' ? 'block' : 'hidden'}><ExperienceLibrary /></div>
+        <div className={activeTab === 'settings' ? 'block' : 'hidden'}><Settings /></div>
       </main>
 
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />

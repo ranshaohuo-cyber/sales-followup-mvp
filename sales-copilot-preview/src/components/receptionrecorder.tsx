@@ -157,8 +157,8 @@ export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props)
     <section className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-bold text-gray-900">接待录音转写</h2>
-          <p className="mt-1 text-xs leading-relaxed text-gray-500">只记录原始文字，不强行区分销售/客户，后面由 AI 提取客户需求和跟进重点。</p>
+          <h2 className="text-sm font-bold text-gray-900">接待录音</h2>
+          <p className="mt-1 text-xs leading-relaxed text-gray-500">录下客户接待过程，结束后自动整理客户需求、顾虑和下一步跟进重点。</p>
         </div>
         <span className={`flex min-h-7 items-center gap-1 rounded-full px-2 text-xs font-semibold ${statusPillClass(status)}`}>
           {status === 'recording' ? <Radio size={12} /> : status === 'connecting' ? <Loader2 size={12} className="animate-spin" /> : <Mic size={12} />}
@@ -194,13 +194,13 @@ export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props)
       {messages.length || partialText ? (
         <div className="mt-3 rounded-lg bg-gray-50 p-3">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">原始转写</span>
+            <span className="text-xs font-semibold text-gray-500">实时记录</span>
             <span className="text-[11px] text-gray-400">{messages.length} 段</span>
           </div>
           <div className="max-h-44 space-y-2 overflow-y-auto text-xs leading-relaxed text-gray-700">
             {messages.map((message, index) => (
               <div key={message.id} className="rounded-lg bg-white px-3 py-2 shadow-sm">
-                <div className="mb-0.5 text-[10px] font-semibold text-gray-400">第 {index + 1} 段</div>
+                <div className="mb-0.5 text-[10px] font-semibold text-gray-400">片段 {index + 1}</div>
                 <p>{message.text}</p>
               </div>
             ))}
