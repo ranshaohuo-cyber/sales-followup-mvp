@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.vite-preview-cache/
+*.log
+.env
+.env.local

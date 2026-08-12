@@ -1,0 +1,1 @@
+﻿Snapshot copied from: C:\Users\Administrator\Documents\构建APP 2 Created at: 2026-08-12 19:08:31 Excluded: node_modules, .venv, dist, caches, .env, .env.txt, logs To run: create backend\.env from backend\.env.example, then run npm install in sales-copilot-preview if node_modules is missing.
