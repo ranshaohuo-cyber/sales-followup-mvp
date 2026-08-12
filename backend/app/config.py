@@ -27,6 +27,7 @@ class Settings:
     public_access_code: str | None = None
 
     cors_origins: list[str] = field(default_factory=list)
+    cors_origin_regex: str | None = None
 
     data_dir: Path = Path(__file__).resolve().parent / "data"
     experiences_file: Path = field(default_factory=lambda: Path(__file__).resolve().parent / "data" / "experiences.json")
@@ -70,6 +71,7 @@ def get_settings() -> Settings:
                 '["http://localhost:5173","http://127.0.0.1:5173","http://localhost:4173","http://127.0.0.1:4173"]',
             )
         ),
+        cors_origin_regex=os.getenv("CORS_ORIGIN_REGEX"),
         data_dir=data_dir,
         experiences_file=data_dir / "experiences.json",
         demo_log_file=data_dir / "demo_logs.jsonl",

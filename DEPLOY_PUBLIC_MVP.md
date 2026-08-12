@@ -22,6 +22,7 @@ QWEN_REALTIME_WS_URL=wss://dashscope.aliyuncs.com/api-ws/v1/realtime
 QWEN_FOLLOWUP_MODEL=qwen-plus
 QWEN_PREMIUM_FOLLOWUP_MODEL=qwen-max
 CORS_ORIGINS=["https://你的前端域名"]
+CORS_ORIGIN_REGEX=^https://.*\.vercel\.app$
 ```
 
 后端目录：
@@ -93,7 +94,7 @@ dist
 - 后端用 `PUBLIC_ACCESS_CODE` 校验
 - `/health` 保持公开，方便平台健康检查
 
-不要把访问码公开发到社交平台。给试用老板单独发，后面如果担心外传，就换一个新的 `PUBLIC_ACCESS_CODE`。
+不要把访问码公开发到社交平台。给试用老板单独发，后面如果担心外传，就换一个新的 `PUBLIC_ACCESS_CODE`。`r`n`r`n`CORS_ORIGIN_REGEX` 可以先保留 `^https://.*\.vercel\.app$`，这样 Vercel 默认域名上线后不用反复改后端。等有正式域名后，再把它收紧成你的正式域名。
 
 ## 手机录音
 
