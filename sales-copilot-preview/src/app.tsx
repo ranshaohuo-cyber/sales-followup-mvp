@@ -13,7 +13,6 @@ export default function App() {
   const [unlocked, setUnlocked] = useState(() => Boolean(getAccessCode()))
   const [activeTab, setActiveTab] = useState<TabId>('followup')
 
-
   if (!unlocked) {
     return <AccessGate onUnlock={() => setUnlocked(true)} />
   }
@@ -21,7 +20,7 @@ export default function App() {
   return (
     <div className="mobile-container flex flex-col">
       <div className="flex items-center justify-center bg-white px-4 pb-1 pt-2">
-        <span className="text-sm font-semibold text-gray-900">门店客户跟进助手</span>
+        <span className="text-sm font-semibold text-gray-900">门店跟进助手</span>
       </div>
 
       <main className="hide-scrollbar flex-1 overflow-y-auto pb-20">

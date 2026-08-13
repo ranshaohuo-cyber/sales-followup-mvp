@@ -28,6 +28,7 @@ export interface FollowupPlanOption {
 }
 
 export type DialogueSpeaker = 'sales' | 'customer' | 'unknown' | 'noise'
+export type DialogueMessageSource = 'manual' | 'realtime_asr' | 'sales_recap' | 'wechat' | 'attachment' | 'field'
 
 export interface DialogueMessage {
   id: string
@@ -35,7 +36,7 @@ export interface DialogueMessage {
   text: string
   confidence?: number
   timestamp?: string
-  source?: 'manual' | 'realtime_asr'
+  source?: DialogueMessageSource
 }
 
 export interface FollowupResult {

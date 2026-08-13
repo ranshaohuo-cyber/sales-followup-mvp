@@ -5,11 +5,17 @@ import { RealtimeAsrSession } from '../services/realtimeSession'
 import { QwenServerVadTurnDetectionProvider } from '../services/turnDetection'
 import { UtteranceAudioBuffer } from '../services/utteranceAudioBuffer'
 import type { QwenRealtimeEvent } from '../services/qwenRealtime'
-import type { DialogueMessage } from '../types/followup'
+import type { DialogueMessage, DialogueMessageSource } from '../types/followup'
 
 type RecorderStatus = 'idle' | 'connecting' | 'recording' | 'error'
 
 interface Props {
+  title?: string
+  description?: string
+  startLabel?: string
+  stopLabel?: string
+  segmentLabel?: string
+  source?: DialogueMessageSource
   onMessagesChange: (messages: DialogueMessage[]) => void
   onFinish: (messages: DialogueMessage[]) => void
 }
@@ -21,7 +27,16 @@ interface UtteranceSnapshot {
   endedAt?: string
 }
 
-export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props) {
+export default function ReceptionRecorder({
+  title = '接待录音',
+  description = '录下客户接待过程，结束后自动整理客户需求、顾虑和下一步跟进重点。',
+  startLabel = '开始录音',
+  stopLabel = '结束录音',
+  segmentLabel = '片段',
+  source = 'realtime_asr',
+  onMessagesChange,
+  onFinish,
+}: Props) {
   const [status, setStatus] = useState<RecorderStatus>('idle')
   const [partialText, setPartialText] = useState('')
   const [error, setError] = useState('')
@@ -80,7 +95,12 @@ export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props)
   function stop() {
     if (!isRecording) return
 
-    const nextMessages = [...messagesRef.current]
+    const nextMessages = partialText.trim()
+      ? [...messagesRef.current, buildMessage(partialText.trim(), lastUtteranceSnapshotRef.current)]
+      : [...messagesRef.current]
+
+    messagesRef.current = nextMessages
+    setMessages(nextMessages)
     stopDevices()
     setStatus('idle')
     setPartialText('')
@@ -135,17 +155,7 @@ export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props)
   }
 
   function appendMessage(text: string, snapshot: UtteranceSnapshot | null) {
-    const nextMessages = [
-      ...messagesRef.current,
-      {
-        id: `msg_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-        speaker: 'unknown' as const,
-        text,
-        confidence: snapshot?.byteLength ? 1 : 0,
-        timestamp: new Date().toISOString(),
-        source: 'realtime_asr' as const,
-      },
-    ]
+    const nextMessages = [...messagesRef.current, buildMessage(text, snapshot)]
     messagesRef.current = nextMessages
     setMessages(nextMessages)
     setPartialText('')
@@ -153,12 +163,23 @@ export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props)
     lastUtteranceSnapshotRef.current = null
   }
 
+  function buildMessage(text: string, snapshot: UtteranceSnapshot | null): DialogueMessage {
+    return {
+      id: `msg_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+      speaker: 'unknown',
+      text,
+      confidence: snapshot?.byteLength ? 1 : 0,
+      timestamp: new Date().toISOString(),
+      source,
+    }
+  }
+
   return (
     <section className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-bold text-gray-900">接待录音</h2>
-          <p className="mt-1 text-xs leading-relaxed text-gray-500">录下客户接待过程，结束后自动整理客户需求、顾虑和下一步跟进重点。</p>
+          <h2 className="text-sm font-bold text-gray-900">{title}</h2>
+          <p className="mt-1 text-xs leading-relaxed text-gray-500">{description}</p>
         </div>
         <span className={`flex min-h-7 items-center gap-1 rounded-full px-2 text-xs font-semibold ${statusPillClass(status)}`}>
           {status === 'recording' ? <Radio size={12} /> : status === 'connecting' ? <Loader2 size={12} className="animate-spin" /> : <Mic size={12} />}
@@ -171,23 +192,23 @@ export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props)
           type="button"
           onClick={start}
           disabled={isRecording}
-          className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg text-xs font-bold ${
+          className={`flex min-h-12 items-center justify-center gap-1.5 rounded-lg text-sm font-bold ${
             isRecording ? 'bg-gray-100 text-gray-400' : 'bg-primary-500 text-white'
           }`}
         >
-          <Mic size={14} />
-          开始录音
+          <Mic size={15} />
+          {startLabel}
         </button>
         <button
           type="button"
           onClick={stop}
           disabled={!isRecording}
-          className={`flex min-h-10 items-center justify-center gap-1.5 rounded-lg text-xs font-bold ${
+          className={`flex min-h-12 items-center justify-center gap-1.5 rounded-lg text-sm font-bold ${
             isRecording ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-400'
           }`}
         >
-          <CircleStop size={14} />
-          结束并生成
+          <CircleStop size={15} />
+          {stopLabel}
         </button>
       </div>
 
@@ -200,7 +221,7 @@ export default function ReceptionRecorder({ onMessagesChange, onFinish }: Props)
           <div className="max-h-44 space-y-2 overflow-y-auto text-xs leading-relaxed text-gray-700">
             {messages.map((message, index) => (
               <div key={message.id} className="rounded-lg bg-white px-3 py-2 shadow-sm">
-                <div className="mb-0.5 text-[10px] font-semibold text-gray-400">片段 {index + 1}</div>
+                <div className="mb-0.5 text-[10px] font-semibold text-gray-400">{segmentLabel} {index + 1}</div>
                 <p>{message.text}</p>
               </div>
             ))}

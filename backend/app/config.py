@@ -22,8 +22,10 @@ class Settings:
     qwen_realtime_ws_url: str = "wss://dashscope.aliyuncs.com/api-ws/v1/realtime"
     qwen_public_ws_path: str = "/api/qwen/realtime/ws"
     qwen_text_generation_url: str = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation"
+    qwen_multimodal_generation_url: str = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
     qwen_followup_model: str = "qwen-plus"
     qwen_premium_followup_model: str = "qwen-max"
+    qwen_attachment_model: str = "qwen-vl-plus"
     public_access_code: str | None = None
 
     cors_origins: list[str] = field(default_factory=list)
@@ -62,8 +64,13 @@ def get_settings() -> Settings:
             "QWEN_TEXT_GENERATION_URL",
             "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
         ),
+        qwen_multimodal_generation_url=os.getenv(
+            "QWEN_MULTIMODAL_GENERATION_URL",
+            "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
+        ),
         qwen_followup_model=os.getenv("QWEN_FOLLOWUP_MODEL", "qwen-plus"),
         qwen_premium_followup_model=os.getenv("QWEN_PREMIUM_FOLLOWUP_MODEL", "qwen-max"),
+        qwen_attachment_model=os.getenv("QWEN_ATTACHMENT_MODEL", "qwen-vl-plus"),
         public_access_code=os.getenv("PUBLIC_ACCESS_CODE"),
         cors_origins=parse_cors_origins(
             os.getenv(

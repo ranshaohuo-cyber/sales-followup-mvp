@@ -1,4 +1,4 @@
-import { Lightbulb, MessageSquareText, Settings, TrendingUp } from 'lucide-react'
+import { CalendarCheck, Lightbulb, Mic, Settings } from 'lucide-react'
 
 type TabId = 'followup' | 'review' | 'experience' | 'settings'
 
@@ -8,8 +8,8 @@ interface Props {
 }
 
 const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-  { id: 'followup', label: '跟进卡', icon: <MessageSquareText size={20} /> },
-  { id: 'review', label: '客户复盘', icon: <TrendingUp size={20} /> },
+  { id: 'followup', label: '开始接客', icon: <Mic size={20} /> },
+  { id: 'review', label: '今天跟谁', icon: <CalendarCheck size={20} /> },
   { id: 'experience', label: '经验库', icon: <Lightbulb size={20} /> },
   { id: 'settings', label: '设置', icon: <Settings size={20} /> },
 ]
@@ -28,7 +28,7 @@ export default function BottomNav({ activeTab, onTabChange }: Props) {
                 isActive ? 'text-primary-500' : 'text-gray-400'
               }`}
             >
-              <span className={isActive ? 'rounded-xl bg-accent/10 p-1.5' : ''}>
+              <span className={isActive ? 'rounded-lg bg-accent/10 p-1.5' : ''}>
                 {tab.icon}
               </span>
               <span className={`whitespace-nowrap text-[10px] leading-none ${isActive ? 'font-semibold text-primary-500' : ''}`}>

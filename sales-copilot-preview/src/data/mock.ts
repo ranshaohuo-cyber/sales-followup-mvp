@@ -198,13 +198,13 @@ export const settingsData = {
   },
   device: {
     connected: true,
-    deviceName: '文字粘贴 / 接待录音',
+    deviceName: '接待录音 / 销售补充 / 微信导入 / 拍照资料',
   },
   industry: {
     current: '门窗装修建材 V1.0',
   },
   aiPreference: {
     style: '真诚顾问型',
-    broadcast: '跟进动作+微信话术',
+    broadcast: '下一步动作+微信建议',
   },
 }

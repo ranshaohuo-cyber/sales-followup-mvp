@@ -22,7 +22,7 @@ const settingItems = [
     icon: Bot,
     iconBg: 'bg-gray-100',
     iconColor: 'text-gray-500',
-    title: '跟进卡偏好',
+    title: '跟进建议偏好',
     desc: `风格：${settingsData.aiPreference.style} · 播报：${settingsData.aiPreference.broadcast}`,
   },
   {

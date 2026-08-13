@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 FollowupIndustry = Literal["windows", "renovation", "custom_furniture", "building_materials"]
 FollowupCustomerStatus = Literal["new_inquiry", "comparing", "hesitating", "ready_to_close", "silent"]
 FollowupQuality = Literal["standard", "premium"]
+AttachmentKind = Literal["photo", "floorplan", "quote"]
 
 
 class FollowupGenerateRequest(BaseModel):
@@ -13,6 +14,19 @@ class FollowupGenerateRequest(BaseModel):
     customerStatus: FollowupCustomerStatus
     transcript: str = Field(min_length=1)
     quality: FollowupQuality = "standard"
+
+
+class FollowupAttachmentAnalyzeRequest(BaseModel):
+    kind: AttachmentKind
+    name: str
+    mimeType: str
+    dataUrl: str = Field(min_length=1)
+    note: str | None = None
+
+
+class FollowupAttachmentAnalyzeResponse(BaseModel):
+    summary: str
+    model: str
 
 
 class FollowupSignal(BaseModel):
